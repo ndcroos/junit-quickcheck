@@ -27,11 +27,20 @@ package com.pholser.junit.quickcheck;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.lang.reflect.Parameter;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+import static com.pholser.junit.quickcheck.Property.Mode.*;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
 
 import com.pholser.junit.quickcheck.hook.NilMinimalCounterexampleHook;
+import com.pholser.junit.quickcheck.internal.SeededValue;
+import com.pholser.junit.quickcheck.internal.generator.PropertyParameterGenerationContext;
+import com.pholser.junit.quickcheck.runner.sampling.ExhaustiveParameterSampler;
+import com.pholser.junit.quickcheck.runner.sampling.TupleParameterSampler;
 
 /**
  * <p>Mark a method on a class that is {@linkplain org.junit.runner.RunWith
@@ -44,6 +53,30 @@ import com.pholser.junit.quickcheck.hook.NilMinimalCounterexampleHook;
 @Target(METHOD)
 @Retention(RUNTIME)
 public @interface Property {
+    interface ParameterSampler {
+        int sizeFactor(Parameter p);
+
+        Stream<List<SeededValue>> sample(
+            List<PropertyParameterGenerationContext> parameters);
+    }
+
+    enum Mode {
+        SAMPLING {
+            @Override ParameterSampler sampler(int defaultSampleSize) {
+                return new TupleParameterSampler(defaultSampleSize);
+            }
+        },
+        EXHAUSTIVE {
+            @Override ParameterSampler sampler(int defaultSampleSize) {
+                return new ExhaustiveParameterSampler(defaultSampleSize);
+            }
+        };
+
+        abstract ParameterSampler sampler(int defaultSampleSize);
+    }
+
+    Mode mode() default SAMPLING;
+
     /**
      * @return how many sets of parameters to verify the property with
      */

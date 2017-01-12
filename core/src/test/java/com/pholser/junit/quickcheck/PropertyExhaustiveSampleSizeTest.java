@@ -1,7 +1,7 @@
 /*
  The MIT License
 
- Copyright (c) 2010-2017 Paul R. Holser, Jr.
+ Copyright (c) 2010-2016 Paul R. Holser, Jr.
 
  Permission is hereby granted, free of charge, to any person obtaining
  a copy of this software and associated documentation files (the
@@ -31,12 +31,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.pholser.junit.quickcheck.Annotations.defaultPropertyTrialCount;
+import static com.pholser.junit.quickcheck.Property.Mode.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.experimental.results.PrintableResult.testResult;
 import static org.junit.experimental.results.ResultMatchers.isSuccessful;
 
-public class PropertySampleSizeTest {
+public class PropertyExhaustiveSampleSizeTest {
     @Test public void shouldFeedADefaultNumberOfValuesToAProperty() throws Exception {
         assertThat(testResult(ForDefaultNumberOfValues.class), isSuccessful());
         assertEquals(defaultPropertyTrialCount(), ForDefaultNumberOfValues.iterations);
@@ -46,7 +47,7 @@ public class PropertySampleSizeTest {
     public static class ForDefaultNumberOfValues {
         static int iterations;
 
-        @Property public void shouldHold(Foo f) {
+        @Property(mode = EXHAUSTIVE) public void shouldHold(Foo f) {
             ++iterations;
         }
     }
@@ -60,21 +61,21 @@ public class PropertySampleSizeTest {
     public static class ForSpecifiedNumberOfValues {
         static int iterations;
 
-        @Property(trials = 5) public void shouldHold(Foo f) {
+        @Property(trials = 5, mode = EXHAUSTIVE) public void shouldHold(Foo f) {
             ++iterations;
         }
     }
 
     @Test public void trialCountHoldsForEntirePropertyRatherThanIndividualParameters() {
         assertThat(testResult(ForValuesOfMultipleParameters.class), isSuccessful());
-        assertEquals(21, ForValuesOfMultipleParameters.iterations);
+        assertEquals(21 * 21, ForValuesOfMultipleParameters.iterations);
     }
 
     @RunWith(JUnitQuickcheck.class)
     public static class ForValuesOfMultipleParameters {
         static int iterations;
 
-        @Property(trials = 21) public void shouldHold(Foo f, Foo g) {
+        @Property(trials = 21, mode = EXHAUSTIVE) public void shouldHold(Foo f, Foo g) {
             ++iterations;
         }
     }
