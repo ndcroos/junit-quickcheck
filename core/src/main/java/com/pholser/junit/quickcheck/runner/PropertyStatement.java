@@ -157,10 +157,7 @@ class PropertyStatement extends Statement {
             method,
             testClass,
             failure,
-            shrinkControl.maxShrinks(),
-            shrinkControl.maxShrinkDepth(),
-            shrinkControl.maxShrinkTime(),
-            shrinkControl.onMinimalCounterexample())
+            shrinkControl)
             .shrink(params, args, seeds);
     }
 

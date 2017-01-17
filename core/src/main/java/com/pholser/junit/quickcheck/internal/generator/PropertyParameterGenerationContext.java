@@ -110,7 +110,7 @@ public class PropertyParameterGenerationContext extends AbstractGenerationStatus
 
     @Override public int size() {
         int sample = super.size();
-        return min(sample, parameter.sampleSize());
+        return min(sample, sampleSize());
     }
 
     @Override public int attempts() {
